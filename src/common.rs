@@ -2166,6 +2166,16 @@ pub fn apply_id_desk_branding() {
     defaults
         .entry(keys::OPTION_API_SERVER.to_owned())
         .or_insert_with(|| ID_DESK_API_SERVER.to_owned());
+    drop(defaults);
+    // Wyłączenia UI zaszyte na twardo (Flutter czyta je z HARD_SETTINGS przez
+    // get_hard_option). Wcześniej szły przez custom.txt, ale obecność custom.txt
+    // wywoływała abort klienta (do zbadania osobno) — a te opcje i tak są stałe
+    // dla ID Desk, więc ich miejsce jest w kodzie, nie w pliku obok exe.
+    // - disable-account: brak logowania do konta RustDesk (agent i tak nie loguje)
+    // - disable-ab: brak książki adresowej (listę urządzeń trzyma InfraDesk)
+    let mut hard = config::HARD_SETTINGS.write().unwrap();
+    hard.entry("disable-account".to_owned()).or_insert_with(|| "Y".to_owned());
+    hard.entry("disable-ab".to_owned()).or_insert_with(|| "Y".to_owned());
 }
 
 pub fn load_custom_client() {

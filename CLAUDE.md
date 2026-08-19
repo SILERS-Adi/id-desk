@@ -35,6 +35,10 @@ Submoduł `libs/hbb_common` = upstream bez zmian (celowo; stałe nadpisujemy w r
 - Nazwa techniczna `IDDesk` bez spacji (URI `iddesk://`, usługa Windows `IDDesk`, `IDDesk.exe`, `C:\Program Files\IDDesk`).
   Agent InfraDesk szuka dziś `C:\Program Files\SILERS\SILERS.exe` i `RustDesk.toml` — przy wdrożeniu dodać ścieżki `IDDesk`.
 - Nie zaczynamy funkcji „agentowych” w Flutterze, dopóki istnieje agent Python — ID Desk to silnik zdalny.
+- **`custom.txt` NIE jest używany w buildzie** (obecność pliku obok exe wywołuje abort klienta, kod 3 —
+  do zbadania). Branding, serwer, klucz, api-server i `disable-account/ab` są zaszyte w
+  `src/common.rs::apply_id_desk_branding`. Presetowe hasło → agent przez `IDDesk.exe --password`.
+  Mechanizm `res/id-desk/make_custom.py` zostaje do czasu naprawy crashu.
 
 ## Synchronizacja z upstreamem
 

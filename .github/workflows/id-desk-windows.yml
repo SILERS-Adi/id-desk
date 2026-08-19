@@ -181,18 +181,12 @@ jobs:
               Write-Host "Ignore the printer driver error."
           }
 
-      - name: Generate custom.txt (ustawienia custom clienta)
-        shell: bash
-        env:
-          ID_DESK_CUSTOM_SIGN_KEY: ${{ secrets.ID_DESK_CUSTOM_SIGN_KEY }}
-        run: |
-          if [ -z "$ID_DESK_CUSTOM_SIGN_KEY" ]; then
-            echo "Brak sekretu ID_DESK_CUSTOM_SIGN_KEY - pomijam custom.txt (branding i serwer są i tak zaszyte w kodzie)."
-            exit 0
-          fi
-          pip3 install pynacl
-          python3 res/id-desk/make_custom.py res/id-desk/custom.release.json > ./rustdesk/custom.txt
-          echo "custom.txt: $(wc -c < ./rustdesk/custom.txt) bytes"
+      # UWAGA: custom.txt jest CELOWO NIE dołączany do buildu. Branding (app-name),
+      # serwer, klucz, api-server i wyłączenia (disable-account/ab) są zaszyte w
+      # kodzie (src/common.rs::apply_id_desk_branding) i działają bez tego pliku.
+      # Obecność custom.txt obok exe wywołuje abort klienta (kod 3) — do zbadania;
+      # mechanizm (res/id-desk/make_custom.py) zostaje w repo do czasu naprawy.
+      # Presetowe hasło ustawia agent przez `IDDesk.exe --password`, nie custom.txt.
 
       - name: find Runner.res
         continue-on-error: true
