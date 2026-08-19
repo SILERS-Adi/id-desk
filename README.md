@@ -1,3 +1,8 @@
+> **ID Desk** — brandowany klient zdalnego pulpitu dla [InfraDesk](https://infradesk.pl) (SILERS).
+> Fork [RustDesk](https://github.com/rustdesk/rustdesk) na licencji AGPL-3.0 — kod źródłowy każdej
+> wydanej wersji jest w tym repozytorium (tagi `id-desk-v*`). Co różni fork od upstreamu: [`CLAUDE.md`](CLAUDE.md).
+> Pełne zasługi i prawa autorskie do silnika: zespół RustDesk / Purslane Tech Pte. Ltd. Poniżej oryginalny README.
+
 <p align="center">
   <img src="res/logo-header.svg" alt="RustDesk - Your remote desktop"><br>
   <a href="#raw-steps-to-build">Build</a> •
