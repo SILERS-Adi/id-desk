@@ -2134,7 +2134,42 @@ pub fn rustdesk_interval(i: Interval) -> ThrottledInterval {
     ThrottledInterval::new(i)
 }
 
+// ---------------------------------------------------------------------------
+// ID Desk (SILERS / InfraDesk) — branding i domyślna infrastruktura.
+// Jedyne miejsce, w którym fork różni się od upstreamu pod względem tożsamości.
+// Zmiana wartości = nowy build; custom.txt może je nadpisać (OVERWRITE) lub
+// uzupełnić (DEFAULT) bez przebudowy.
+// ---------------------------------------------------------------------------
+pub const ID_DESK_APP_NAME: &str = "IDDesk";
+/// Rendezvous/relay (hbbs/hbbr na vps1). Klucz publiczny = /home/adrian/rustdesk/id_ed25519.pub.
+pub const ID_DESK_RENDEZVOUS_SERVER: &str = "infradesk.pl";
+pub const ID_DESK_RS_PUB_KEY: &str = "84RlZpwgH+jM8JnfPP40GVx6HtOC+7IsauZQQFdLb54=";
+/// Serwer API: klient POST-uje tu /api/audit/conn, /api/audit/file, /api/heartbeat, /api/sysinfo.
+/// Obsługuje je backend-v2 InfraDesk (billing sesji + CMDB) — nie RustDesk Server Pro.
+pub const ID_DESK_API_SERVER: &str = "https://infradesk.pl";
+/// Klucz publiczny ed25519 do weryfikacji podpisu custom.txt (res/id-desk/make_custom.py).
+/// Klucz prywatny: sekret GitHub Actions ID_DESK_CUSTOM_SIGN_KEY (poza repo).
+pub const ID_DESK_CUSTOM_SIGN_PUB_KEY: &str = "V5LWMMtFUL9zFjdWU5aiJXWdkc1enXD/+ycitjTOWv8=";
+
+/// Ustawia tożsamość ID Desk. Wywoływane na początku `load_custom_client`, czyli
+/// we wszystkich punktach wejścia (core_main, flutter_ffi, --service, mobile).
+pub fn apply_id_desk_branding() {
+    *config::APP_NAME.write().unwrap() = ID_DESK_APP_NAME.to_owned();
+    *config::PROD_RENDEZVOUS_SERVER.write().unwrap() = ID_DESK_RENDEZVOUS_SERVER.to_owned();
+    let mut defaults = config::DEFAULT_SETTINGS.write().unwrap();
+    defaults
+        .entry(keys::OPTION_CUSTOM_RENDEZVOUS_SERVER.to_owned())
+        .or_insert_with(|| ID_DESK_RENDEZVOUS_SERVER.to_owned());
+    defaults
+        .entry(keys::OPTION_KEY.to_owned())
+        .or_insert_with(|| ID_DESK_RS_PUB_KEY.to_owned());
+    defaults
+        .entry(keys::OPTION_API_SERVER.to_owned())
+        .or_insert_with(|| ID_DESK_API_SERVER.to_owned());
+}
+
 pub fn load_custom_client() {
+    apply_id_desk_branding();
     #[cfg(debug_assertions)]
     if let Ok(data) = std::fs::read_to_string("./custom.txt") {
         read_custom_client(data.trim());
@@ -2233,12 +2268,14 @@ pub fn get_dst_align_rgba() -> usize {
 }
 
 pub fn read_custom_client(config: &str) {
+    // ID Desk: branding zawsze przed konfiguracją custom (także gdy config przychodzi z Androida).
+    apply_id_desk_branding();
     let Ok(data) = decode64(config) else {
         log::error!("Failed to decode custom client config");
         return;
     };
-    const KEY: &str = "5Qbwsde3unUcJBtrx9ZkvUmwFNoExHzpryHuPUdqlWM=";
-    let Some(pk) = get_rs_pk(KEY) else {
+    // ID Desk: własny klucz podpisu (upstream RustDesk: 5Qbwsde3unUcJBtrx9ZkvUmwFNoExHzpryHuPUdqlWM=).
+    let Some(pk) = get_rs_pk(ID_DESK_CUSTOM_SIGN_PUB_KEY) else {
         log::error!("Failed to parse public key of custom client");
         return;
     };

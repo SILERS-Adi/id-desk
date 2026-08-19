@@ -1,0 +1,13 @@
+{
+  "app-name": "IDDesk",
+  "default-settings": {
+    "api-server": "https://infradesk.pl",
+    "custom-rendezvous-server": "infradesk.pl",
+    "key": "84RlZpwgH+jM8JnfPP40GVx6HtOC+7IsauZQQFdLb54="
+  },
+  "override-settings": {
+    "allow-auto-record-incoming": "N"
+  },
+  "disable-account": "Y",
+  "disable-ab": "Y"
+}
